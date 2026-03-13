@@ -1,0 +1,60 @@
+defaults:
+  - _self_
+
+# ============================================================
+# 基本运行参数
+# ============================================================
+num_envs: 2
+freq: 40                 # 控制频率，建议能和仿真 dt 对齐
+camera_follow: true
+scene_name: warehouse
+# scene_name: full-warehouse
+
+# ============================================================
+# 任务 / 模型
+# ============================================================
+task_name: "Isaac-Velocity-Rough-Unitree-Go2-v0"
+agent_cfg_path: "config/agent.yaml"
+models_root: "models"
+export_policy: true
+
+# ============================================================
+# 控制模式
+# keyboard:
+#   - 仅支持 num_envs == 1
+# twist:
+#   - 支持多环境，通过 ROS2 topic 写入 cmd_vel
+# ============================================================
+control:
+  mode: "twist"   # "keyboard" 或 "twist"
+  topic_template: "/env_{env_idx}/cmd_vel"
+
+# ============================================================
+# 传感器配置
+# ============================================================
+sensor:
+  enable_lidar: true
+  enable_camera: true
+
+  color_image: true
+  depth_image: true
+  semantic_segmentation: true
+
+  camera:
+    pos: [0.5, 0.0, 0.1]
+    rot: [1.0, 0.0, 0.0, 0.0]   # WXYZ
+
+  lidar:
+    pos: [0.0, 0.0, 0.25]
+    rot: [1.0, 0.0, 0.0, 0.0]   # WXYZ
+
+# ============================================================
+# App 显示参数
+# 目前 run_sim.py 里还没有完全消费这些参数，
+# 但建议先保留，后续统一接入 AppLauncher / viewer
+# ============================================================
+sim_app:
+  anti_aliasing: 0
+  width: 1280
+  height: 720
+  hide_ui: false
