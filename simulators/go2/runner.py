@@ -16,7 +16,7 @@ from robots.Unitree.Go2.sensors.sensor_cfg import Go2SensorParam
 from robots.Unitree.Go2.control.control_api import sub_keyboard_event
 from robots.Unitree.Go2.control.ros2_twist_bridge import Go2MultiEnvRos2TwistBridgeRunner
 
-import ros2.go2_ros2_bridge as go2_ros2_bridge
+from robots.ros2.sensor_data_manager import SensorDataManager
 
 
 class Go2SimulationRunner(BaseSimulationRunner):
@@ -40,6 +40,8 @@ class Go2SimulationRunner(BaseSimulationRunner):
         self.cfg = cfg
         self.simulation_app = simulation_app
         self.ctx: Optional[RuntimeContext] = None
+        self.num_envs = self.cfg.num_envs
+        self.sdm = None
 
 
     # ========================================================
@@ -144,8 +146,33 @@ class Go2SimulationRunner(BaseSimulationRunner):
         cameras = sensor_mgr.create_camera()
         return lidars, cameras
 
-    def init_data_manager(self, env, lidars, cameras):
-        return go2_ros2_bridge.RobotDataManager(env, lidars, cameras, self.cfg)
+    def init_sensor_data_manager(self, env, lidars, cameras):
+        """
+        初始化传感器数据管理员 
+
+        """
+        # 这个变量是 env.scene.robot
+        go2_env_scene_entity_name = "robot"
+        sdm = SensorDataManager(env, self.cfg, go2_env_scene_entity_name)
+        sdm.create_odom_ros2_node()
+        sdm.pub_odom_ros2_msg()
+        sdm.pub_clock_ros2_msg()
+        sdm.pub_camera_ros2_msg()
+
+        lidar_frame_id_list : list = []
+        camera_frame_id_list: list = []
+        for i in range(self.num_envs):
+            lidar_frame_id_list.append(f"go2_lidar_frame_id_{i}")
+            camera_frame_id_list.append(f"go2_camera_frame_id_{i}")
+        sdm.pub_lidar_ros2_msg(lidar_list=lidars, fram_id_list=lidar_frame_id_list, topic_template= "/go2_pointcloud")
+        sdm.pub_camera_ros2_msg(cameras_list=cameras, frame_id_list=camera_frame_id_list, topic_template= "/go2_image")
+
+
+
+
+
+
+
 
     # ========================================================
     #  init
@@ -169,7 +196,8 @@ class Go2SimulationRunner(BaseSimulationRunner):
         env, policy = self.init_runtime(env_cfg)
 
         # 5. 初始化传感器
-        lidars, cameras = self.init_sensors()
+        lidars, cameras_ = self.init_sensors()
+        cameras = env.unwrapped.scene["front_cam"]
 
         # 6. 初始化 twist bridge（如果启用）
         twist_bridge_runner = self.init_twist_bridge()

@@ -13,6 +13,7 @@ from robots.Unitree.Go2.control.control_api import get_command_manager, switch_c
 class Go2MultiEnvRos2TwistBridge(Node):
     """
     多环境 ROS2 Twist 桥接节点
+     twist 转 isaac sim的控制
 
     每个环境一个 topic，例如：
         /env_0/cmd_vel

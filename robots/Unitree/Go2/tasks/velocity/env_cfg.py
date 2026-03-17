@@ -6,6 +6,8 @@ from isaaclab.sensors.ray_caster import patterns
 from isaaclab.terrains import TerrainImporterCfg
 from isaaclab.utils import configclass
 import isaaclab.sim as sim_utils
+from isaaclab.sensors import Camera, CameraCfg
+
 
 from robots.Unitree.Go2.robot_cfg import GO2_META, build_go2_robot_spec
 from robots.Unitree.Go2.tasks.velocity.actions import Go2VelocityActionsCfg
@@ -32,7 +34,22 @@ class Go2FlatSceneCfg(InteractiveSceneCfg):
     # 机器人资产
     robot: ArticulationCfg = build_go2_robot_spec().articulation_cfg
 
-    # 高度扫描器（RayCaster）
+
+    front_cam = CameraCfg(
+        prim_path=GO2_META.base_link_path+"/front_cam",
+        update_period=0.05,                      
+        data_types=["rgb"],              
+        spawn=sim_utils.PinholeCameraCfg(),             
+        width=640,                                       
+        height=480,                                      
+        offset=CameraCfg.OffsetCfg(
+            pos=(0.5, 0.0, 0.1),                         
+            rot=(1.0, 0.0, 0.0, 0.0),                    
+            convention="world"                             
+        ),
+    )
+
+    # lidar
     height_scanner = RayCasterCfg(
         prim_path=GO2_META.base_link_path,
         update_period=0.02,

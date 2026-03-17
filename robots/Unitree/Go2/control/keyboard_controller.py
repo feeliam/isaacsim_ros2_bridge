@@ -22,6 +22,9 @@ class Go2KeyboardController(BaseVelocityController):
         self.keyboard = Se2Keyboard(Se2KeyboardCfg())
 
     def update(self) -> None:
+        """
+        更新速度指令
+        """
         if self.keyboard is None:
             return
 

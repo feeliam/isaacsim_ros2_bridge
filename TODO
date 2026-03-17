@@ -1,0 +1,4 @@
+# TODO list
+1. 弄懂IsaacSensorCreateRtxLidar 和 RayCasterCfg 区别，尝试把这两个合并为一种使用
+2. 合并激光雷达的创建 只在Scene中创建， 删除Sensor Manager 只负责本体以外的传感器
+3. 重新发布image topic 和point cloud topic(采用 提取数据再发布数据的形式，不再使用 OmniGraph)
